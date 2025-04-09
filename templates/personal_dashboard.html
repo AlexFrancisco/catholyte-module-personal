@@ -1,0 +1,194 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Dashboard Header -->
+    <div class="p-4 mb-4 bg-light rounded-3">
+        <div class="container-fluid py-3">
+            <h1 class="display-5 fw-bold"><i class="bi bi-person-circle"></i> Personal Dashboard</h1>
+            <p class="col-md-8 fs-5">Your comprehensive overview across finance, health, and tasks.</p>
+        </div>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="row mb-4">
+        <!-- Finance Card -->
+        <div class="col-md-4">
+            <div class="card border-primary mb-3 h-100">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-wallet2"></i> Financial Overview
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Account Balances</h5>
+                    {% if accounts %}
+                        <ul class="list-group list-group-flush">
+                            {% for account in accounts %}
+                            <li class="list-group-item d-flex justify-content-betwee
+                            n align-items-center">
+                                {{ account.name }}
+                                <span class="badge bg-primary rounded-pill">${{ "%.2f"|format(account.balance) }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-wallet2 text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2">No accounts available</p>
+                            {% if is_blueprint_active('finance') %}
+                                <a href="{{ url_for('finance.accounts') }}" class="btn btn-sm btn-outline-primary">Add Account</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    {% if accounts %}
+                        <div class="mt-3">
+                            <a href="{{ url_for('finance.dashboard') }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Card -->
+        <div class="col-md-4">
+            <div class="card border-success mb-3 h-100">
+                <div class="card-header bg-success text-white">
+                    <i class="bi bi-heart-pulse"></i> Health Status
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Recent Metrics</h5>
+                    {% if health_records %}
+                        <ul class="list-group list-group-flush">
+                            {% for record in health_records %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {% if record.date is string %}
+                                    {{ record.date }} - {{ record.name }}
+                                {% else %}
+                                    {{ record.date.strftime('%Y-%m-%d') if record.date else 'N/A' }} - {{ record.name }}
+                                {% endif %}
+                                <span class="badge bg-success rounded-pill">{{ record.value }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-heart-pulse text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2">No health records available</p>
+                            {% if is_blueprint_active('health_tracker') %}
+                                <a href="{{ url_for('health_tracker.health') }}" class="btn btn-sm btn-outline-success">Track Health</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    {% if health_records %}
+                        <div class="mt-3">
+                            <a href="{{ url_for('health_tracker.health') }}" class="btn btn-sm btn-outline-success">Health Dashboard</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Sections -->
+    <div class="row">
+        <!-- Recent Transactions -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <i class="bi bi-credit-card"></i> Recent Transactions
+                </div>
+                <div class="card-body">
+                    {% if transactions %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in transactions %}
+                                    <tr>
+                                        <td>
+                                            {% if transaction.date is string %}
+                                                {{ transaction.date }}
+                                            {% else %}
+                                                {{ transaction.date.strftime('%Y-%m-%d') if transaction.date else 'N/A' }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ transaction.description }}</td>
+                                        <td class="{% if transaction.amount < 0 %}text-danger{% else %}text-success{% endif %}">
+                                            ${{ "%.2f"|format(transaction.amount) }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-credit-card text-muted" style="font-size: 2.5rem;"></i>
+                            <p class="text-muted mt-3">No transactions recorded yet</p>
+                            {% if is_blueprint_active('finance') %}
+                                <a href="{{ url_for('finance.transactions') }}" class="btn btn-sm btn-outline-primary">Record Transaction</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% if transactions %}
+                <div class="card-footer">
+                    <a href="{{ url_for('finance.transactions') }}" class="btn btn-sm btn-outline-secondary">View All Transactions</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Personal Records -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <i class="bi bi-file-earmark-text"></i> Personal Records
+                </div>
+                <div class="card-body">
+                    {% if personal_records %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Name</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in personal_records %}
+                                    <tr>
+                                        <td><span class="badge bg-secondary">{{ record.type }}</span></td>
+                                        <td>{{ record.name }}</td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-file-earmark-text text-muted" style="font-size: 2.5rem;"></i>
+                            <p class="text-muted mt-3">No personal records found</p>
+                            <a href="{{ url_for('personal.manage_records') }}" class="btn btn-sm btn-outline-primary">Add Record</a>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if personal_records %}
+                <div class="card-footer">
+                    <a href="{{ url_for('personal.manage_records') }}" class="btn btn-sm btn-outline-secondary">Manage Records</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

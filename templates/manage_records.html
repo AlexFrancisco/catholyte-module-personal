@@ -1,0 +1,137 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+<div class="card container col-md-10">
+    <div class="card-body">
+        <h1>Personal Records</h1>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.type.label }} {{ form.type(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.name.label }} {{ form.name(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.dob.label }} {{ form.dob(class="form-control") }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.ssn.label }} {{ form.ssn(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.account_number.label }} {{ form.account_number(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.account_type.label }} {{ form.account_type(class="form-control") }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.notes.label }} {{ form.notes(class="form-control") }}
+            </div>
+            {{ form.submit(class="btn btn-primary mt-3") }}
+        </form>
+        
+        <hr>
+        
+        <h2>Existing Records</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Name</th>
+                        <th>Date of Birth</th>
+                        <th>SSN</th>
+                        <th>Account Info</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record.type|title }}</td>
+                        <td>{{ record.name }}</td>
+                        <td>{{ record.dob }}</td>
+                        <td>{{ "***-**-" + record.ssn[-4:] if record.ssn }}</td>
+                        <td>
+                            {% if record.account_number %}
+                            {{ record.account_type }}: ...{{ record.account_number[-4:] }}
+                            {% endif %}
+                        </td>
+                        <td>{{ record.notes|truncate(50) }}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary btn-sm me-2" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editModal{{ record.id }}">
+                                Edit
+                            </button>
+                            <form action="{{ url_for('personal.delete_record', id=record.id) }}" 
+                                  method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Are you sure you want to delete this record?');">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    
+                    <!-- Edit Modal for each record -->
+                    <div class="modal fade" id="editModal{{ record.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Edit Record</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form action="{{ url_for('personal.edit_record', id=record.id) }}" method="POST">
+                                    <div class="modal-body">
+                                        {{ form.hidden_tag() }}
+                                        <div class="mb-3">
+                                            {{ form.type.label }}
+                                            {{ form.type(class="form-control", value=record.type) }}
+                                        </div>
+                                        <div class="mb-3">
+                                            {{ form.name.label }}
+                                            {{ form.name(class="form-control", value=record.name) }}
+                                        </div>
+                                        <div class="mb-3">
+                                            {{ form.dob.label }}
+                                            {{ form.dob(class="form-control", value=record.dob) }}
+                                        </div>
+                                        <div class="mb-3">
+                                            {{ form.ssn.label }}
+                                            {{ form.ssn(class="form-control", value=record.ssn) }}
+                                        </div>
+                                        <div class="mb-3">
+                                            {{ form.account_number.label }}
+                                            {{ form.account_number(class="form-control", value=record.account_number) }}
+                                        </div>
+                                        <div class="mb-3">
+                                            {{ form.account_type.label }}
+                                            {{ form.account_type(class="form-control", value=record.account_type) }}
+                                        </div>
+                                        <div class="mb-3">
+                                            {{ form.notes.label }}
+                                            {{ form.notes(class="form-control", value=record.notes) }}
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
