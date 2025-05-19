@@ -1,0 +1,14 @@
+<li class="dropdown-submenu">
+    <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+    Personal
+    </a>
+    <ul class="dropdown-menu">
+        <li>
+            <a class="dropdown-item" href="{{ url_for('personal.personal_dashboard') }}"><i class="bi bi-house-door"></i> Dashboard</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{{ url_for('personal.manage_records') }}"><i class="bi bi-file-text"></i> Manage Records</a>
+        </li>
+        <!-- Add other personal submenu items here if needed, following the pattern above -->
+    </ul>
+</li>
