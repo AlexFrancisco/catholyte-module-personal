@@ -4,7 +4,7 @@ from app.modules.personal import personal_bp
 from app.modules.personal.forms import PersonalRecordForm
 from app.modules.personal.models import PersonalRecord
 from app import db
-from app.services.utils import is_blueprint_active
+from app.utils import is_blueprint_active
 
 @personal_bp.route('/records', methods=['GET', 'POST'])
 @login_required
